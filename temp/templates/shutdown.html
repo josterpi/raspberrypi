@@ -21,9 +21,6 @@ function xhr(url, method, load, timeout) {
 	req.addEventListener("timeout", timeout);
 	req.addEventListener("onerror", timeout);
 	req.addEventListener("onabort", timeout);
-	req.onreadystatechange = function () {
-		// For some reason, having this handler keeps an error from happening
-	}
 	req.open(method, url);
 	try {
 		req.send();
@@ -65,6 +62,7 @@ window.onload = function() {
 					notify("down");
 					$("message").innerHTML = "Off. Safe to unplug.";
 				});
+		setTimeout(check_shutdown, 1000);
 		return false;
 	}
 
