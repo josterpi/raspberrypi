@@ -1,0 +1,80 @@
+<html>
+	<head>
+		<title>Shutdown rPi</title>
+		<meta name=viewport content="width=device-width, initial-scale=1">
+<style>
+#message {
+	font-size: 2em;
+}
+.shutting-down {
+	background-color: red;
+}
+.down {
+	background-color: green;
+}
+</style>
+<script>
+function xhr(url, method, load, timeout) {
+	var req = new XMLHttpRequest();
+	req.timeout = 1000;
+	req.addEventListener("load", load);
+	req.addEventListener("timeout", timeout);
+	req.addEventListener("onerror", timeout);
+	req.addEventListener("onabort", timeout);
+	req.onreadystatechange = function () {
+		// For some reason, having this handler keeps an error from happening
+	}
+	req.open(method, url);
+	try {
+		req.send();
+	} catch(err) {
+		timeout();
+	}
+}
+function $(id) {
+	return document.getElementById(id);
+}
+function notify(state) {
+	$("body").className = state;
+}
+
+function check_shutdown() {
+	xhr("http://raspberrypi/shutdown", "GET",
+			function () {
+			       	setTimeout(check_shutdown, 1000);
+			},
+			function() {
+				notify("down");
+			       	$("message").innerHTML = "Off. Safe to unplug.";
+	});
+}
+window.onload = function() {
+	{% if shutting_down %}
+	notify("shutting-down");
+	check_shutdown();
+	{% endif %}
+	$("form").onsubmit = function () {
+		$("button").disabled = true;
+		$("message").innerHTML = "Shutting down...";
+		notify("shutting-down");
+		xhr("http://raspberrypi/shutdown", "POST",
+				function () {
+					check_submit()
+				},
+				function () {
+					notify("down");
+					$("message").innerHTML = "Off. Safe to unplug.";
+				});
+		return false;
+	}
+
+}
+</script>
+	</head>
+<body id="body">
+	<form id="form" action="/shutdown" method="POST">
+		<input id="button" type="submit" value="SHUTDOWN" {% if shutting_down %}disabled{% endif %}>
+	</form>
+	<div id="message"></div>
+</body>
+</html>

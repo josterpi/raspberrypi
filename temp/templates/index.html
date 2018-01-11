@@ -1,0 +1,41 @@
+<html>
+	<head>
+		<title>rPI Temperature</title>
+		<meta name=viewport content="width=device-width, initial-scale=1">
+		<script>
+function xhr(url, callback) {
+	var req = new XMLHttpRequest();
+	req.addEventListener("load", callback);
+	req.open("GET", url);
+	req.send();
+}
+function $(id) {
+	return document.getElementById(id);
+}
+delay = 5000;
+function change_delay(ms) {
+	delay = this.value * 1000 || 5000;
+}
+function update_temp() {
+	xhr("http://raspberrypi/temp/temp", function() {
+		$("current-temp").innerHTML = this.responseText;
+		setTimeout(update_temp, delay);
+	});
+}
+
+window.onload = function() {
+	change_delay();
+	setTimeout(update_temp, delay);
+	$("1sec").onclick = change_delay;
+	$("5sec").onclick = change_delay;
+	$("30sec").onclick = change_delay;
+}
+		</script>
+	</head>
+	<body>
+		<h1 id="current-temp" style="font-size: 5em">{{ temp }}</h1>
+		<label><input name="delay" value="1" type="radio" id="1sec"><label>1 second</label>
+		<label><input name="delay" value="5" type="radio" id="5sec" checked>5 seconds</label>
+		<label><input name="delay" value="30" type="radio" id="30sec">30 seconds</label>
+	</body>
+</html>
