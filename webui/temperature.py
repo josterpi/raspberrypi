@@ -3,15 +3,11 @@ import os
 import glob
 from datetime import datetime
 import time
-import sqlite3
  
-from flask import Flask, render_template, request
-
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
  
 base_dir = '/sys/bus/w1/devices/'
-dbname = "/home/josterpi/raspberrypi/templog.db"
 device_folder = glob.glob(base_dir + '28*')[0]
 device_file = device_folder + '/w1_slave'
 
@@ -28,7 +24,7 @@ def datetime_compare(a, b):
     if cmp(a[0], b[0]) == 0:
         return cmp(a[1], b[1])
     else:
-        return cmp(a[0, b[0])
+        return cmp(a[0], b[0])
 
 def gte(a, b):
     return datetime_compare(a, b) in (0, 1)
@@ -44,7 +40,7 @@ def lt(a, b):
 #    8:00am 68
 #    9:00pm 65
 
-def schedule_temp(dt):
+def scheduled_temp(dt):
     schedule = {"MF": [(0, 0, 65), (5, 45, 70), (9, 0, 68), (22, 0, 65)],
                 "SS": [(0, 0, 65), (6, 0, 70), (8, 0, 68), (21, 0, 65)]}
     group = "MF"
@@ -58,14 +54,14 @@ def schedule_temp(dt):
             break
     return temp
  
-def read_temp_raw():
+def _read_temp_raw():
     f = open(device_file, 'r')
     lines = f.readlines()
     f.close()
     return lines
  
 def read_temp():
-    lines = read_temp_raw()
+    lines = _read_temp_raw()
     while lines[0].strip()[-3:] != 'YES':
         time.sleep(0.2)
         lines = read_temp_raw()
@@ -75,22 +71,3 @@ def read_temp():
         temp_c = float(temp_string) / 1000.0
         temp_f = temp_c * 9.0 / 5.0 + 32.0
         return temp_f
-
-app = Flask(__name__)
-
-@app.route('/temp')
-def index():
-    return render_template("index.html", temp=read_temp())
-
-
-@app.route('/temp/temp')
-def current_temp():
-    return str(read_temp())
-
-@app.route('/shutdown', methods=['GET', 'POST'])
-def shutdown():
-    if request.method == 'POST':
-        os.system("sudo shutdown now")
-        return render_template("shutdown.html", shutting_down=True)
-    else:
-        return render_template("shutdown.html", shutting_down=False)

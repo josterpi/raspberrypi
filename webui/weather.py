@@ -2,7 +2,7 @@
 import json
 import urllib.request
 
-from secrets import WEATHER_KEY, CITY_ID
+from .secrets import WEATHER_KEY, CITY_ID
 
 API = "http://api.openweathermap.org/data/2.5/weather?units=imperial&id=%s&appid=%s"
 

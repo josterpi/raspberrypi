@@ -1,42 +1,36 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import os
 import glob
 import time
 import sqlite3
- 
-os.system('modprobe w1-gpio')
-os.system('modprobe w1-therm')
- 
-base_dir = '/sys/bus/w1/devices/'
-dbname = "/home/pi/templog.db"
-device_folder = glob.glob(base_dir + '28*')[0]
-device_file = device_folder + '/w1_slave'
- 
-def read_temp_raw():
-    f = open(device_file, 'r')
-    lines = f.readlines()
-    f.close()
-    return lines
- 
-def read_temp():
-    lines = read_temp_raw()
-    while lines[0].strip()[-3:] != 'YES':
-        time.sleep(0.2)
-        lines = read_temp_raw()
-    equals_pos = lines[1].find('t=')
-    if equals_pos != -1:
-        temp_string = lines[1][equals_pos+2:]
-        temp_c = float(temp_string) / 1000.0
-        temp_f = temp_c * 9.0 / 5.0 + 32.0
-        return temp_f
+
+from webui import weather, temperature
+
+DBNAME = "/home/josterpi/raspberrypi/templog.db"
+
+def get_outside_temp():
+    conn = sqlite3.connect(DBNAME)
+    curs = conn.cursor()
+    curs.execute("CREATE TABLE IF NOT EXISTS outside (fetched DATETIME, temp NUMERIC)")
+    curs.execute("SELECT temp FROM outside WHERE fetched > datetime('now', 'localtime', '-10 minutes')")
+    row = curs.fetchone()
+    if row is None:
+        w = weather.get_weather()
+        temp = w['main']['temp']
+        curs.execute("INSERT INTO outside VALUES(datetime('now', 'localtime'), (?))", (temp,))
+    else:
+        temp = row[0]
+    conn.commit()
+    conn.close()
+    return temp
 
 def log_temp(temp):
-    conn = sqlite3.connect(dbname)
+    conn = sqlite3.connect(DBNAME)
     curs = conn.cursor()
     curs.execute("INSERT INTO temps values(datetime('now', 'localtime'), (?))", (temp,))
     conn.commit()
     conn.close()
 
 if __name__ == "__main__":
-    log_temp(read_temp())
+    log_temp(temperature.read_temp())
