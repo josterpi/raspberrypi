@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+from datetime import datetime
 import os
 import glob
 import time
@@ -27,8 +28,10 @@ def get_outside_temp():
 
 def log_temp(temp):
     conn = sqlite3.connect(DBNAME)
+    outside = get_outside_temp()
+    scheduled = temperature.scheduled_temp(datetime.now())
     curs = conn.cursor()
-    curs.execute("INSERT INTO temps values(datetime('now', 'localtime'), (?))", (temp,))
+    curs.execute("INSERT INTO temps values(datetime('now', 'localtime'), ?, ?, ?)", (temp, outside, scheduled))
     conn.commit()
     conn.close()
 
