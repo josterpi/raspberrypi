@@ -16,6 +16,10 @@ def weekend(dt):
         return True
     return False
 
+def cmp(a, b):
+    # Python 3 doesn't have cmp
+    return (a>b) - (a<b)
+
 def datetime_compare(a, b):
     if isinstance(a, datetime):
         a = (a.hour, a.minute)
