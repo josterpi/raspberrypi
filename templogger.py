@@ -10,6 +10,8 @@ from webui import weather, temperature
 
 DBNAME = "/home/josterpi/raspberrypi/templog.db"
 
+LOCATION_TAG = "master-bedroom"
+
 def get_outside_temp():
     conn = sqlite3.connect(DBNAME)
     curs = conn.cursor()
@@ -31,7 +33,7 @@ def log_temp(temp):
     outside = get_outside_temp()
     scheduled = temperature.scheduled_temp(datetime.now())
     curs = conn.cursor()
-    curs.execute("INSERT INTO temps values(datetime('now', 'localtime'), ?, ?, ?)", (temp, outside, scheduled))
+    curs.execute("INSERT INTO temps values(datetime('now', 'localtime'), ?, ?, ?, ?)", (temp, outside, scheduled, LOCATION_TAG))
     conn.commit()
     conn.close()
 
