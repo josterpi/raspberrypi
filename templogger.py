@@ -10,7 +10,7 @@ from webui import weather, temperature
 
 DBNAME = "/home/josterpi/raspberrypi/templog.db"
 
-LOCATION_TAG = "master-bedroom"
+LOCATION_TAG = "lasalle-office"
 
 def get_outside_temp():
     conn = sqlite3.connect(DBNAME)
