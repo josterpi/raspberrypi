@@ -23,3 +23,7 @@ def shutdown():
         return render_template("shutdown.html", shutting_down=True)
     else:
         return render_template("shutdown.html", shutting_down=False)
+
+@app.route('/kideditor')
+def kideditor():
+    return render_template("kideditor.html")

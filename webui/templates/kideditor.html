@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Text editor for kids</title>
+    <style>
+      #editor {
+	  position: absolute;
+	  top: 120px;
+	  bottom: 0;
+	  width: 95%;
+	  font-size: 3em;
+	  border-radius: 25px;
+	  border: 2px solid black;
+          padding: 15px;
+      }
+      [contenteditable]:focus {
+	  outline: none;
+      }
+      button {
+	  height: 100px;
+	  width: 100px;
+	  margin-right: 20px;
+      }
+      
+    </style>
+  </head>
+  <body>
+    <header>
+      <button id="black" value="#000"></button>
+      <button id="red" value="#f00"></button>
+      <button id="blue" value="#00f"></button>
+      <button id="orange" value="#f59520"></button>
+      <button id="green" value="#009e2d"></button>
+      <button id="purple" value="#c70abd"></button>
+      <button id="pink" value="#f759a6"></button>
+    </header>
+    <div id="editor" contenteditable="true">
+    </div>
+  </body>
+  <script>
+    // onclick handler to set the text color
+    document.querySelector('header').onclick = function (event) {
+	document.execCommand('foreColor', true, event.target.value)
+	document.getElementById('editor').focus()
+    }
+    // Make all of the buttons the color of their value
+    document.querySelectorAll('header button').forEach(function(button) {
+	button.style.backgroundColor = button.value
+    })
+    // On load, focus in the editor
+    document.getElementById('editor').focus()
+  </script>
+    
+</html>
